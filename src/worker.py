@@ -59,9 +59,11 @@ class JSONWorker(BaseWorker):
         Метод для записи списка вакансий в файл.
         Список словарей с данными о вакансиях.
         """
-        with open(self.file_path, 'w', encoding='utf-8') as file:
-            for vacancy in vacancies:
-                file.write(json.dumps(vacancy) + '\n')
+        try:
+            with open(self.file_path, 'w', encoding='utf-8') as file:
+                json.dump(vacancies, file, ensure_ascii=False, indent=4)
+        except IOError as e:
+            print(f'Ошибка записи файла: {e}')
     
     def add_vacancy(self, vacancy):
         """
