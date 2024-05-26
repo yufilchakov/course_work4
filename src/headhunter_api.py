@@ -27,7 +27,7 @@ class HeadHunterApi(BaseAPI):
             'page': 0,
             'per_page': 100
         }
-       
+    
     def get_vacancies(self, keyword: str, count: int) -> list[Vacancy]:
         """
             Функция предназначена для получения вакансий с помощью запросов к API.
@@ -36,24 +36,10 @@ class HeadHunterApi(BaseAPI):
         self.params['per_page'] = count
         response = requests.get(self.url, params=self.params)
         if response.status_code == 200:
-            data = response.json()
-            vacancies = []
-            for item in data['items']:
-                salary = item.get('salary')
-                salary_from = salary['from'] if salary and 'from' in salary else 0
-                salary_to = salary['to'] if salary and 'to' in salary else 0
-                vacancies.append(
-                    Vacancy(
-                        title=item.get('name'),
-                        url=item.get('alternate_url'),
-                        salary={'from': salary_from, 'to': salary_to},
-                        schedule=item.get('schedule', {}).get('name', ''),
-                        requirements=item.get('snippet', {}).get('requirements', ''),
-                        responsibility=item.get('snippet', {}).get('responsibility', '')
-                        )
-                    )
+            vacancies_data = response.json().get('items', [])
+            vacancies_data = vacancies_data[:count]
+            vacancies = [Vacancy.from_dict(vacancy_data) for vacancy_data in vacancies_data]
             return vacancies
-        else:
-            print(f'Не удалось получить данные.: {response.status_code}')
+        print(f'Не удалось получить данные: {response.status_code}')
         return []
- 
+    
