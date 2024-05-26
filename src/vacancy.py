@@ -13,11 +13,13 @@ class Vacancy:
         self.schedule = schedule
         self.requirements = requirements if requirements else ""
         self.responsibility = responsibility if responsibility else ""
+        self.salary_to = self.salary
+        self.salary_from = self.salary
         self.validate()
-        
+    
     def validate(self):
         if not isinstance(self.salary, dict) or 'from' not in self.salary or 'to' not in self.salary:
-            self.salary = {'from': 0, 'to': 0}
+            self.salary = {'from':0, 'to':0}
             print("Предупреждение: неверные данные о зарплате, используются значения по умолчанию.")
             self.salary_from = 0
             self.salary_to = 0
@@ -31,21 +33,24 @@ class Vacancy:
             self.salary_to = 0
             print("Предупреждение: обнаружены отрицательные значения зарплаты, "
                   "установлены значения по умолчанию.")
-        
+    
     def __lt__(self, other):
         return self.salary < other.salary
+    
+    def __gt__(self, other):
+        return self.salary > other.salary
         
     @classmethod
     def from_dict(cls, vacancy_dict):
         return cls(
-            title=vacancy_dict.get('name'),
-            url=vacancy_dict.get('alternate_url'),
-            salary=vacancy_dict.get('salary', {}),
+            title=vacancy_dict.get('name', ''),
+            url=vacancy_dict.get('alternate_url', ''),
+            salary=vacancy_dict.get('salary', {'from': 0, 'to': 0}),
             schedule=vacancy_dict.get('schedule', {}).get('name', ''),
             requirements=vacancy_dict.get('snippet', {}).get('requirements', ''),
             responsibility=vacancy_dict.get('snippet', {}).get('responsibility', '')
         )
-    
+        
     def __str__(self):
         return (f'Название: {self.title}\n'
                 f'Ссылка: {self.url}\n'
