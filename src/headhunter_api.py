@@ -11,7 +11,7 @@ class BaseAPI(ABC):
     """
     
     @abstractmethod
-    def get_vacancies(self, keyword, count):
+    def get_vacancies(self, keyword):
         pass
 
 
@@ -28,18 +28,14 @@ class HeadHunterApi(BaseAPI):
             'per_page': 100
         }
     
-    def get_vacancies(self, keyword: str, count: int) -> list[Vacancy]:
+    def get_vacancies(self, keyword: str) -> list[Vacancy]:
         """
             Функция предназначена для получения вакансий с помощью запросов к API.
         """
         self.params.update({'text': keyword})
-        self.params['per_page'] = count
         response = requests.get(self.url, params=self.params)
         if response.status_code == 200:
-            vacancies_data = response.json().get('items', [])
-            vacancies_data = vacancies_data[:count]
-            vacancies = [Vacancy.from_dict(vacancy_data) for vacancy_data in vacancies_data]
-            return vacancies
+            return response.json().get('items', [])
         print(f'Не удалось получить данные: {response.status_code}')
         return []
     
